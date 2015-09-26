@@ -5,6 +5,7 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import com.rafaelbattesti.business.Record;
 
 
 /**
@@ -16,7 +17,7 @@ public class DataAccess {
 	
 	// JDBC 
 	private final String JDBC_URL       = "jdbc:mysql://localhost/Laptopdb";
-	private final String JDBC_DRIVER    = "com.mysql.jdbc.Drive";
+	private final String JDBC_DRIVER    = "com.mysql.jdbc.Driver";
 	
 	// Database credentials
 	private final String DB_USER        = "root";
@@ -26,6 +27,8 @@ public class DataAccess {
 	private final String ERR_DRIVER     = "JDBC Driver not found";
 	private final String ERR_CONNECT    = "Could not connect to database";
 	private final String ERR_DISCONNECT = "Could not disconnect from database";
+	private final String ERR_PREPARE    = "Could not prepare statements for SQL";
+	private final String ERR_INSERT     = "Could not insert new record into database";
 	
 	// Holds a connection object created by the connect() method
 	private Connection conn;
@@ -33,11 +36,25 @@ public class DataAccess {
 	// Holds errors
 	private String log;
 	
+	// Hold Prepared Statements
+	private PreparedStatement insertStatement;
+	
 	/**
-	 * @return
+	 * This prepares all statements after connection.
 	 */
-	public String getLog () {
-		return log;
+	private void prepareAllStatements () {
+		
+		// Resets the log attribute
+		log = null;
+		
+		String insertSql = "INSERT INTO LaptopBorrowerInfo (student_id, first_name, model, hdd, memory, year) ";
+		insertSql += "VALUES (?, ?, ?, ?, ?, ?);";
+		
+		try {
+			insertStatement = conn.prepareStatement(insertSql);
+		} catch (SQLException e) {
+			log = logErr(e, ERR_PREPARE);
+		}
 	}
 	
 	/**
@@ -61,6 +78,9 @@ public class DataAccess {
 		} catch (SQLException e) {
 			log = logErr(e, ERR_CONNECT);
 		}
+		
+		// Prepare all statements
+		prepareAllStatements();
 	}
 	
 	/**
@@ -84,6 +104,30 @@ public class DataAccess {
 
 	}
 	
+	public void insertRecord (Record record) {
+		
+		log = null;
+		
+		try {
+			
+			// Substitutes placeholders in the prepared statement
+			insertStatement.setString(1, record.getStudentId());
+			insertStatement.setString(2, record.getFirstName());
+			insertStatement.setString(3, record.getModel());
+			insertStatement.setInt(4, record.getHdd());
+			insertStatement.setInt(5, record.getMemory());
+			insertStatement.setInt(6, record.getYear());
+			
+			// Execute the statement
+			insertStatement.executeUpdate();
+			
+		} catch (SQLException e) {
+
+			log = logErr(e, ERR_INSERT);
+		}
+		
+	}
+	
 	/**
 	 * Assigns log message to object's attribute
 	 * @param e
@@ -103,6 +147,13 @@ public class DataAccess {
 		} else {
 			return date + ":::" + errMessage;
 		}
+	}
+	
+	/**
+	 * @return log attribute
+	 */
+	public String getLog () {
+		return log;
 	}
 	
 }
