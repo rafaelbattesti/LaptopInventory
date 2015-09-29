@@ -4,6 +4,7 @@ package com.rafaelbattesti.dataaccess;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import com.rafaelbattesti.business.Record;
 
@@ -16,19 +17,41 @@ import com.rafaelbattesti.business.Record;
 public class DataAccess {
 	
 	// JDBC 
-	private final String JDBC_URL       = "jdbc:mysql://localhost/Laptopdb";
-	private final String JDBC_DRIVER    = "com.mysql.jdbc.Driver";
+	private static final String JDBC_URL          = "jdbc:mysql://localhost/Laptopdb";
+	private static final String JDBC_DRIVER       = "com.mysql.jdbc.Driver";
 	
 	// Database credentials
-	private final String DB_USER        = "root";
-	private final String DB_PASS        = "1111";
+	private static final String DB_USER           = "root";
+	private static final String DB_PASS           = "1111";
 	
-	// Err messages
-	private final String ERR_DRIVER     = "JDBC Driver not found";
-	private final String ERR_CONNECT    = "Could not connect to database";
-	private final String ERR_DISCONNECT = "Could not disconnect from database";
-	private final String ERR_PREPARE    = "Could not prepare statements for SQL";
-	private final String ERR_INSERT     = "Could not insert new record into database";
+	// Error messages
+	private static final String ERR_DRIVER        = "JDBC Driver not found";
+	private static final String ERR_CONNECT       = "Could not connect to database";
+	private static final String ERR_DISCONNECT    = "Could not disconnect from database";
+	private static final String ERR_PREPARE       = "Could not prepare statements for SQL";
+	private static final String ERR_INSERT        = "Could not insert new record into database";
+	private static final String ERR_DELETE        = "Could not delete from the database";
+	private static final String ERR_RETR_ID       = "Could not retrieve record by id";
+	private static final String ERR_RETR_NAME     = "Could not retireve record by name";
+	private static final String ERR_CLOSE_RESULT  = "Could not close the result resource";
+	private static final String ERR_DUPE_RECORD   = "User already exists!";
+	
+	// Success messages
+	private static final String SUC_INSERT        = "Record successfully inserted!";
+	private static final String SUC_DELETE        = "Record successfully deleted!";
+	private static final String SUC_NOT_FOUND     = "Record not found!";
+	
+	// Record fields
+	private static final String ID                = "student_id";
+	private static final String NAME              = "first_name";
+	private static final String MODEL             = "model";
+	private static final String HDD               = "hdd";
+	private static final String MEMORY            = "memory";
+	private static final String YEAR              = "year";
+	
+	// Other constants
+	private static final String DATE_FORMAT       = "yyyy/MM/dd HH:mm:ss";
+	private static final int    CODE_DUPE_RECORD  = 1062;
 	
 	// Holds a connection object created by the connect() method
 	private Connection conn;
@@ -36,110 +59,241 @@ public class DataAccess {
 	// Holds errors
 	private String log;
 	
+	// Holds messages to the upper layer
+	private String message;
+	
 	// Hold Prepared Statements
-	private PreparedStatement insertStatement;
+	private PreparedStatement insertPrep;
+	private PreparedStatement deletePrep;
+	private PreparedStatement retrieveIdPrep;
+	private PreparedStatement retrieveNamePrep;
 	
 	/**
 	 * This prepares all statements after connection.
 	 */
 	private void prepareAllStatements () {
-		
 		// Resets the log attribute
 		log = null;
-		
 		String insertSql = "INSERT INTO LaptopBorrowerInfo (student_id, first_name, model, hdd, memory, year) ";
 		insertSql += "VALUES (?, ?, ?, ?, ?, ?);";
-		
+		String deleteSql = "DELETE FROM LaptopBorrowerInfo WHERE student_id = ? AND first_name = ?;";
+		String retrieveIdSql = "SELECT * FROM LaptopBorrowerInfo WHERE student_id = ?;";
+		String retrieveNameSql = "SELECT * FROM LaptopBorrowerInfo WHERE first_name = ?;";
 		try {
-			insertStatement = conn.prepareStatement(insertSql);
+			insertPrep = conn.prepareStatement(insertSql);
+			deletePrep = conn.prepareStatement(deleteSql);
+			retrieveIdPrep = conn.prepareStatement(retrieveIdSql);
+			retrieveNamePrep = conn.prepareStatement(retrieveNameSql);
 		} catch (SQLException e) {
 			log = logErr(e, ERR_PREPARE);
 		}
 	}
 	
 	/**
-	 * Connects to database
+	 * Connects to database.
 	 */
 	public void connect() {
-		
 		// Resets the log attribute
 		log = null;
-		
 		try {
-			
 			// Load driver
 			Class.forName(JDBC_DRIVER);
-			
 			// Create connection with DriverManager
 			conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
-			
 		} catch (ClassNotFoundException e) {
 			log = logErr(e, ERR_DRIVER);
 		} catch (SQLException e) {
 			log = logErr(e, ERR_CONNECT);
 		}
-		
 		// Prepare all statements
-		prepareAllStatements();
+		if (conn != null) {
+			prepareAllStatements();	
+		}
 	}
 	
 	/**
-	 * Disconnects from database
+	 * Disconnects from database.
 	 */
 	public void disconnect() {
-
 		// Resets the log attribute
 		log = null;
-		
 		try {
-			
 			// Closes connection if one exists
 			if (conn != null) {
 				conn.close();
 			}
-			
 		} catch (SQLException e) {	
 			log = logErr(e, ERR_DISCONNECT);
 		}
 
 	}
 	
+	/**
+	 * Inserts a new record into the database.
+	 * @param record
+	 */
 	public void insertRecord (Record record) {
-		
+		// Resets the log attribute
 		log = null;
-		
+		// Resets the message
+		message = null;
+		// Holds the state of the operation
+		int affectedRows = 0;
 		try {
-			
 			// Substitutes placeholders in the prepared statement
-			insertStatement.setString(1, record.getStudentId());
-			insertStatement.setString(2, record.getFirstName());
-			insertStatement.setString(3, record.getModel());
-			insertStatement.setInt(4, record.getHdd());
-			insertStatement.setInt(5, record.getMemory());
-			insertStatement.setInt(6, record.getYear());
-			
+			insertPrep.setString(1, record.getStudentId());
+			insertPrep.setString(2, record.getFirstName());
+			insertPrep.setString(3, record.getModel());
+			insertPrep.setInt(4, record.getHdd());
+			insertPrep.setInt(5, record.getMemory());
+			insertPrep.setInt(6, record.getYear());
 			// Execute the statement
-			insertStatement.executeUpdate();
-			
+			affectedRows = insertPrep.executeUpdate();
+			// Adds success message
+			if (affectedRows != 0) {
+				message = SUC_INSERT;	
+			}
 		} catch (SQLException e) {
-
 			log = logErr(e, ERR_INSERT);
+			if (e.getErrorCode() == CODE_DUPE_RECORD) {
+				message = ERR_DUPE_RECORD;
+			}
 		}
 		
 	}
 	
 	/**
-	 * Assigns log message to object's attribute
+	 * Deletes a single record from the database if user gets id and name correct.
+	 * @param student_id
+	 * @param first_name
+	 */
+	public void deleteRecord (String student_id, String first_name) {
+		// Resets the log attribute
+		log = null;
+		// Resets the message
+		message = null;
+		// Holds the state of the operation
+		int affectedRows = 0;
+		try {
+			// Substitutes placeholder in the prepared statement
+			deletePrep.setString(1, student_id);
+			deletePrep.setString(2, first_name);
+			// Execute the prepared statement
+			affectedRows = deletePrep.executeUpdate();
+			// Adds success message
+			if (affectedRows != 0) {
+				message = SUC_DELETE;	
+			} else {
+				message = SUC_NOT_FOUND;
+			}
+		} catch (SQLException e) {
+			log = logErr(e, ERR_DELETE);
+		}
+	}
+	
+	/**
+	 * Retrieves a single record by student id (Primary Key)
+	 * @param student_id
+	 * @return record
+	 */
+	public Record retrieveById (String student_id) {
+		// Resets the log attribute
+		log = null;
+		// ResultSet holds the results of the query
+		ResultSet result = null;
+		// Record is going to hold the result of the query (unique - search by PK)
+		Record record = null;
+		try {
+			// Substitutes placeholder in the prepared statement
+			retrieveIdPrep.setString(1, student_id);
+			// Executes the prepared statement
+			result = retrieveIdPrep.executeQuery();
+			// Creates a new record to return to the upper layer
+			while (result.next()) {
+				record = new Record (
+						result.getString(ID),
+						result.getString(NAME),
+						result.getString(MODEL)
+						);
+				record.setHdd(result.getInt(HDD));
+				record.setMemory(result.getInt(MEMORY));
+				record.setYear(result.getInt(YEAR));
+			}
+		} catch (SQLException e) {
+			log = logErr(e, ERR_RETR_ID);
+		} finally {
+			// Attempts to close resource if it is not null
+			if (result != null) {
+				try {
+					result.close();
+				} catch (SQLException e) {
+					log = logErr(e, ERR_CLOSE_RESULT);
+				}
+			}
+		}
+		// Returns the record
+		return record;
+	}
+	
+	public ArrayList<Record> retrieveByName (String first_name) {
+		
+		// Resets the log
+		log = null;
+		
+		// ResultSet holds the results
+		ResultSet result = null;
+		
+		// ArrayList holds the list of records
+		ArrayList<Record> recordList = null;
+		
+		try {
+			// Substitutes placeholder in the prepared statement
+			retrieveNamePrep.setString(1, first_name);
+			// Executes the prepared statement
+			result = retrieveNamePrep.executeQuery();
+			// Initializes the new Array if no error
+			recordList = new ArrayList<>();
+			// Creates a new record to return to the upper layer
+			while (result.next()) {
+				Record record = new Record (
+						result.getString(ID),
+						result.getString(NAME),
+						result.getString(MODEL)
+						);
+				record.setHdd(result.getInt(HDD));
+				record.setMemory(result.getInt(MEMORY));
+				record.setYear(result.getInt(YEAR));
+				
+				// Add each record to the list
+				recordList.add(record);
+			}
+			
+		} catch (SQLException e) {
+			log = logErr(e, ERR_RETR_NAME);
+		} finally {
+			//Attempts to close the resource
+			if (result != null) {
+				try {
+					result.close();
+				} catch (SQLException e) {
+					log = logErr(e, ERR_CLOSE_RESULT);
+				}
+			}
+		}
+		// Returns the list of results
+		return recordList;
+	}
+	
+	/**
+	 * Assigns log message to object's attribute.
 	 * @param e
 	 * @param errMessage
 	 * @return log message
 	 */
 	private String logErr (Exception e, String errMessage) {
-		
 		// Sets the date of the error
-		DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		DateFormat df = new SimpleDateFormat(DATE_FORMAT);
 		String date = df.format(new Date());
-		
 		// Logs main SQLException attributes for debugging or only the errMessage
 		if (e instanceof SQLException) {
 			SQLException ex = (SQLException) e;
@@ -150,10 +304,19 @@ public class DataAccess {
 	}
 	
 	/**
-	 * @return log attribute
+	 * Accesses the log attribute of the DataAccess object.
+	 * @return log message
 	 */
 	public String getLog () {
 		return log;
 	}
 	
-}
+	/**
+	 * Accesses the message attribute of the DataAccess object
+	 * @return message
+	 */
+	public String getMessage() {
+		return message;
+	}
+	
+} //End class
