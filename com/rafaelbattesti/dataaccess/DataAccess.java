@@ -68,6 +68,14 @@ public class DataAccess {
 	private PreparedStatement retrieveIdPrep;
 	private PreparedStatement retrieveNamePrep;
 	
+	
+	/**
+	 * Opens a connection when instantiating
+	 */
+	public DataAccess() {
+		connect();
+	}
+	
 	/**
 	 * This prepares all statements after connection.
 	 */
@@ -125,7 +133,6 @@ public class DataAccess {
 		} catch (SQLException e) {	
 			log = logErr(e, ERR_DISCONNECT);
 		}
-
 	}
 	
 	/**
@@ -144,9 +151,24 @@ public class DataAccess {
 			insertPrep.setString(1, record.getStudentId());
 			insertPrep.setString(2, record.getFirstName());
 			insertPrep.setString(3, record.getModel());
-			insertPrep.setInt(4, record.getHdd());
-			insertPrep.setInt(5, record.getMemory());
-			insertPrep.setInt(6, record.getYear());
+			
+			// Assigns proper values to Database (NULL)
+			if (!record.getHdd().isEmpty()) {
+				insertPrep.setInt(4, Integer.parseInt(record.getHdd()));
+			} else {
+				insertPrep.setNull(4, Types.NULL);
+			}
+			if (!record.getMemory().isEmpty()) {
+				insertPrep.setInt(5, Integer.parseInt(record.getHdd()));
+			} else {
+				insertPrep.setNull(5, Types.NULL);
+			}
+			if (!record.getYear().isEmpty()) {
+				insertPrep.setInt(6, Integer.parseInt(record.getYear()));
+			} else {
+				insertPrep.setInt(6, 2015);
+			}
+
 			// Execute the statement
 			affectedRows = insertPrep.executeUpdate();
 			// Adds success message
@@ -215,9 +237,9 @@ public class DataAccess {
 						result.getString(NAME),
 						result.getString(MODEL)
 						);
-				record.setHdd(result.getInt(HDD));
-				record.setMemory(result.getInt(MEMORY));
-				record.setYear(result.getInt(YEAR));
+				record.setHdd(Integer.toString(result.getInt(HDD)));
+				record.setMemory(Integer.toString(result.getInt(MEMORY)));
+				record.setYear(Integer.toString(result.getInt(YEAR)));
 			}
 		} catch (SQLException e) {
 			log = logErr(e, ERR_RETR_ID);
@@ -260,9 +282,9 @@ public class DataAccess {
 						result.getString(NAME),
 						result.getString(MODEL)
 						);
-				record.setHdd(result.getInt(HDD));
-				record.setMemory(result.getInt(MEMORY));
-				record.setYear(result.getInt(YEAR));
+				record.setHdd(Integer.toString(result.getInt(HDD)));
+				record.setMemory(Integer.toString(result.getInt(MEMORY)));
+				record.setYear(Integer.toString(result.getInt(YEAR)));
 				
 				// Add each record to the list
 				recordList.add(record);
@@ -317,6 +339,13 @@ public class DataAccess {
 	 */
 	public String getMessage() {
 		return message;
+	}
+	
+	/**
+	 * @param newMessage
+	 */
+	public void setMessage(String newMessage) {
+		message = newMessage;
 	}
 	
 } //End class
