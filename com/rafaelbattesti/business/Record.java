@@ -8,8 +8,7 @@ package com.rafaelbattesti.business;
 public class Record {
 	
 	// Attributes
-	private String studentId, firstName, model;
-	private int hdd, memory, year;
+	private String studentId, firstName, model, hdd, memory, year;
 	
 	// Constructor
 	public Record (String newStudentId, String newFirstName, String newModel) {
@@ -22,9 +21,9 @@ public class Record {
 	public String getStudentId() { return studentId; }
 	public String getFirstName() { return firstName; }
 	public String getModel() { return model; }
-	public int getHdd() { return hdd; }
-	public int getMemory() { return memory; }
-	public int getYear() { return year; }
+	public String getHdd() { return hdd; }
+	public String getMemory() { return memory; }
+	public String getYear() { return year; }
 	
 	// Setters
 	public void setStudentId(String newStudentId) {
@@ -36,13 +35,14 @@ public class Record {
 	public void setModel(String newModel) {
 		model = newModel;
 	}
-	public void setHdd(int newHdd) {
+	public void setHdd(String newHdd) {
 		hdd = newHdd;
 	}
-	public void setMemory(int newMemory) {
+	public void setMemory(String newMemory) {
 		memory = newMemory;
 	}
-	public void setYear(int newYear) {
+	public void setYear(String newYear) {
 		year = newYear;
 	}
+	
 }
