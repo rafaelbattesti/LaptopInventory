@@ -38,8 +38,8 @@ public class Controller implements Initializable {
 		_db = new DataAccess();
 		
 		// Make status areas read only
-		_addRecordStatusFld.setDisable(true);
-		_delRecordStatusFld.setDisable(true);
+		_addRecordStatusFld.setEditable(false);
+		_delRecordStatusFld.setEditable(false);
 		
 		// Resets the fields on the Add Record tab
 		_addResetBtn.setOnAction((event) -> {

@@ -29,6 +29,10 @@ public class MainApp extends Application {
         
         //Creates a scene with the root node
         Scene scene = new Scene(root, 800, 600);
+        
+        //Set CSS to the main fxml file
+        String css = MainApp.class.getResource("../view/style.css").toExternalForm();
+        scene.getStylesheets().add(css);
 
         //Sets the stage title
         _primaryStage.setTitle(TITLE);
