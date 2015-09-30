@@ -55,24 +55,18 @@ public class Controller implements Initializable {
 		// Add record
 		_addRecordBtn.setOnAction((event) -> {
 			
-			String student_id = _addStudentIdFld.getText();
-			String first_name = _addNameFld.getText();
-			String model      = _addLaptopModelFld.getText();
-			String hdd        = _addHddFld.getText();
-			String memory     = _addMemoryFld.getText();
-			String year       = _addYearFld.getText();
+			Record record = new Record(
+					_addStudentIdFld.getText(), 
+					_addNameFld.getText(),
+					_addLaptopModelFld.getText());
 			
-			Record record = new Record(student_id, first_name, model);
-			
-			record.setHdd(hdd);
-			record.setMemory(memory);
-			record.setYear(year);
-			
-			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
-			String date = df.format(new Date());
+			record.setHdd(_addHddFld.getText());
+			record.setMemory(_addMemoryFld.getText());
+			record.setYear(_addYearFld.getText());
 			
 			_db.insertRecord(record);
-			_statusMessageAdd += "[" + date + "]\n>> " + _db.getMessage() + "\n";
+			
+			_statusMessageAdd = statusMessageBuilder(_statusMessageAdd);
 			printMessage(_statusMessageAdd, _addRecordStatusFld);
 			resetAddFields();
 		});
@@ -80,24 +74,18 @@ public class Controller implements Initializable {
 		// Delete record
 		_delRecordBtn.setOnAction((event) -> {
 			
-			String student_id = _delStudentIdFld.getText();
-			String first_name = _delNameFld.getText();
+			_db.deleteRecord(_delStudentIdFld.getText(), _delNameFld.getText());
 			
-			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
-			String date = df.format(new Date());
-			
-			_db.deleteRecord(student_id, first_name);
-			_statusMessageAdd += "[" + date + "]\n>> " + _db.getMessage() + "\n";
-			printMessage(_statusMessageAdd, _delRecordStatusFld);
+			_statusMessageDel = statusMessageBuilder(_statusMessageDel);
+			printMessage(_statusMessageDel, _delRecordStatusFld);
 			resetDelFields();
-			
 		});
 	}
 	
 	/**
 	 * Resets all fields in insert record
 	 */
-	public void resetAddFields () {
+	private void resetAddFields () {
 		_addStudentIdFld.clear();
 		_addNameFld.clear();
 		_addLaptopModelFld.clear();
@@ -106,19 +94,35 @@ public class Controller implements Initializable {
 		_addYearFld.clear();
 	}
 	
-	public void resetDelFields () {
+	/**
+	 * Resets all fields in delete record
+	 */
+	private void resetDelFields () {
 		_delStudentIdFld.clear();
 		_delNameFld.clear();
 	}
 	
 	/**
 	 * Prints a message at the status field
-	 * @param message
+	 * @param message message to print
+	 * @param statusLabel label to send the message
 	 */
-	public void printMessage (String message, TextArea statusLabel) {
+	private void printMessage (String message, TextArea statusLabel) {
 		if (message != null) {
 			statusLabel.setText(message);
 		}
+	}
+	
+	/**
+	 * Builds a status message to the specific tab.
+	 * @param statusMessage message related to the tab
+	 * @param statusLabel label where the message is printed
+	 * @return 
+	 */
+	private String statusMessageBuilder (String statusMessage) {
+		DateFormat df = new SimpleDateFormat(DATE_FORMAT);
+		String date = df.format(new Date());
+		return statusMessage += "[" + date + "]\n>> " + _db.getMessage() + "\n";
 	}
 	
 	/**
