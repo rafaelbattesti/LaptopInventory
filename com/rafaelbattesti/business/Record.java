@@ -11,10 +11,13 @@ public class Record {
 	private String studentId, firstName, model, hdd, memory, year;
 	
 	// Constructor
-	public Record (String newStudentId, String newFirstName, String newModel) {
+	public Record (String newStudentId, String newFirstName, String newModel, String newHdd, String newMemory, String newYear) {
 		studentId = newStudentId;
 		firstName = newFirstName;
-		model = newModel;
+		model     = newModel;
+		hdd       = newHdd;
+		memory    = newMemory;
+		year      = newYear;
 	}
 	
 	// Getters

@@ -235,12 +235,11 @@ public class DataAccess {
 				Record record = new Record (
 						result.getString(ID),
 						result.getString(NAME),
-						result.getString(MODEL)
+						result.getString(MODEL),
+						Integer.toString(result.getInt(HDD)),
+						Integer.toString(result.getInt(MEMORY)),
+						Integer.toString(result.getInt(YEAR))
 						);
-				record.setHdd(Integer.toString(result.getInt(HDD)));
-				record.setMemory(Integer.toString(result.getInt(MEMORY)));
-				record.setYear(Integer.toString(result.getInt(YEAR)));
-				
 				recordList.add(record);
 			}
 		} catch (SQLException e) {
@@ -280,11 +279,11 @@ public class DataAccess {
 				Record record = new Record (
 						result.getString(ID),
 						result.getString(NAME),
-						result.getString(MODEL)
+						result.getString(MODEL),
+						Integer.toString(result.getInt(HDD)),
+						Integer.toString(result.getInt(MEMORY)),
+						Integer.toString(result.getInt(YEAR))
 						);
-				record.setHdd(Integer.toString(result.getInt(HDD)));
-				record.setMemory(Integer.toString(result.getInt(MEMORY)));
-				record.setYear(Integer.toString(result.getInt(YEAR)));
 				
 				// Add each record to the list
 				recordList.add(record);

@@ -9,8 +9,16 @@
 	-fx-font-size: 1.1em
 }
 
-.table-cell {
+.table-cell, #_tableTitle {
 	-fx-font-family: monospace;
 	-fx-font-weight: bold;
 	-fx-font-size: 1.1em
+}
+
+#_errorLbl {
+	-fx-font-family: monospace;
+	-fx-font-weight: bold;
+	-fx-font-size: 1.1em;
+	-fx-text-fill: red;
+	-fx-alignment: center;
 }
