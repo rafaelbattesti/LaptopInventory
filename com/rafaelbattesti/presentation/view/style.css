@@ -1,0 +1,10 @@
+.text-area .scroll-pane .content {
+	-fx-background-color: black;
+}
+
+.text-area {
+	-fx-text-fill: green;
+	-fx-font-family: monospace;
+	-fx-font-weight: bold;
+	-fx-font-size: 1.1em
+}
