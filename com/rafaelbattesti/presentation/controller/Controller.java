@@ -1,5 +1,6 @@
 package com.rafaelbattesti.presentation.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
 
@@ -13,17 +14,49 @@ import java.text.SimpleDateFormat;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.cell.PropertyValueFactory;
 
+
+/**
+ * Main controller of the application view
+ * @author rafaelbattesti
+ *
+ */
 public class Controller implements Initializable {
 	
-	@FXML
-	private Button _addRecordBtn, _addResetBtn, _delRecordBtn, _delResetBtn, _searchNameBtn, _searchIdBtn;
-	@FXML
-	private TextField _addStudentIdFld, _addNameFld, _addLaptopModelFld, _addHddFld, _addMemoryFld, _addYearFld, 
-	_delStudentIdFld, _delNameFld, _searchNameFld, _searchStudentIdFld;
-	@FXML
-	private TextArea _addRecordStatusFld, _delRecordStatusFld;
+	// Buttons
+	@FXML private Button _addRecordBtn;
+	@FXML private Button _addResetBtn;
+	@FXML private Button _delRecordBtn;
+	@FXML private Button _delResetBtn;
+	@FXML private Button _searchNameBtn;
+	@FXML private Button _searchIdBtn;
 	
+	// TextFields (input)
+	@FXML private TextField _addStudentIdFld; 
+	@FXML private TextField _addNameFld;
+	@FXML private TextField _addLaptopModelFld;
+	@FXML private TextField _addHddFld;
+	@FXML private TextField _addMemoryFld;
+	@FXML private TextField _addYearFld;
+	@FXML private TextField _delStudentIdFld;
+	@FXML private TextField _delNameFld;
+	@FXML private TextField _searchNameFld;
+	@FXML private TextField _searchStudentIdFld;
+	
+	// TextAreas (Status messages)
+	@FXML private TextArea _addRecordStatusFld;
+	@FXML private TextArea  _delRecordStatusFld;
+	
+	// Table to display results
+	@FXML private TableView<Record> _tableView;
+	@FXML private TableColumn<Record, String> _modelCol;
+	@FXML private TableColumn<Record, String> _hddCol;
+	@FXML private TableColumn<Record, String> _memoryCol;
+	@FXML private TableColumn<Record, String> _yearCol;
+	
+	// Other data fields
 	private DataAccess _db;
 	private String _statusMessageAdd = "";
 	private String _statusMessageDel = "";
@@ -41,19 +74,25 @@ public class Controller implements Initializable {
 		_addRecordStatusFld.setEditable(false);
 		_delRecordStatusFld.setEditable(false);
 		
+		// Setup table columns to receive data
+		_modelCol.setCellValueFactory(new PropertyValueFactory<>("model"));
+		_hddCol.setCellValueFactory(new PropertyValueFactory<>("hdd"));
+		_memoryCol.setCellValueFactory(new PropertyValueFactory<>("memory"));
+		_yearCol.setCellValueFactory(new PropertyValueFactory<>("year"));
+		
 		// Resets the fields on the Add Record tab
-		_addResetBtn.setOnAction((event) -> {
+		_addResetBtn.setOnAction(event -> {
 			resetAddFields();
 		});
 		
 		// Resets the fields on the Delete Record tab
-		_delResetBtn.setOnAction((event) -> {
+		_delResetBtn.setOnAction(event -> {
 			_delStudentIdFld.clear();
 			_delNameFld.clear();
 		});
 		
 		// Add record
-		_addRecordBtn.setOnAction((event) -> {
+		_addRecordBtn.setOnAction(event -> {
 			
 			Record record = new Record(
 					_addStudentIdFld.getText(), 
@@ -72,7 +111,7 @@ public class Controller implements Initializable {
 		});
 		
 		// Delete record
-		_delRecordBtn.setOnAction((event) -> {
+		_delRecordBtn.setOnAction(event -> {
 			
 			_db.deleteRecord(_delStudentIdFld.getText(), _delNameFld.getText());
 			
@@ -80,6 +119,27 @@ public class Controller implements Initializable {
 			printMessage(_statusMessageDel, _delRecordStatusFld);
 			resetDelFields();
 		});
+		
+		// Select records by name
+		_searchNameBtn.setOnAction(event -> {
+			
+			ArrayList<Record> recordList = _db.retrieveByName(_searchNameFld.getText());
+			_tableView.getItems().setAll(recordList);
+			_searchNameFld.clear();
+			
+			
+		});
+		
+		// Select record by ID
+		_searchIdBtn.setOnAction(event -> {
+			
+			ArrayList<Record> recordList = _db.retrieveById(_searchStudentIdFld.getText());
+			_tableView.getItems().setAll(recordList);
+			_searchStudentIdFld.clear();
+			
+		});
+		
+		
 	}
 	
 	/**

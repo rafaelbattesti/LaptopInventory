@@ -121,10 +121,10 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                       </rowConstraints>
                                        <children>
-                                          <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="393.0" text="Search by First Name" />
-                                          <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="393.0" text="Search by Student ID" GridPane.rowIndex="1" />
-                                          <TextField GridPane.columnIndex="1" />
-                                          <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Button fx:id="_searchNameBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="393.0" text="Search by First Name" />
+                                          <Button fx:id="_searchIdBtn" mnemonicParsing="false" prefHeight="26.0" prefWidth="393.0" text="Search by Student ID" GridPane.rowIndex="1" />
+                                          <TextField fx:id="_searchNameFld" GridPane.columnIndex="1" />
+                                          <TextField fx:id="_searchStudentIdFld" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                        </children>
                                     </GridPane>
                                  </children>
@@ -132,12 +132,12 @@
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                                  <children>
                                     <Label layoutX="14.0" layoutY="14.0" text="Results" AnchorPane.leftAnchor="6.0" AnchorPane.topAnchor="6.0" />
-                                    <TableView layoutX="285.0" layoutY="94.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
+                                    <TableView fx:id="_tableView" layoutX="285.0" layoutY="94.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
                                       <columns>
-                                        <TableColumn prefWidth="199.0" text="Laptop Model" />
-                                        <TableColumn prefWidth="199.0" text="HDD (GB)" />
-                                          <TableColumn prefWidth="199.0" text="Memory (MB)" />
-                                          <TableColumn prefWidth="200.0" text="Year Manufactured" />
+                                        <TableColumn fx:id="_modelCol" prefWidth="199.0" text="Laptop Model" />
+                                        <TableColumn fx:id="_hddCol" prefWidth="199.0" text="HDD (GB)" />
+                                          <TableColumn fx:id="_memoryCol" prefWidth="199.0" text="Memory (MB)" />
+                                          <TableColumn fx:id="_yearCol" prefWidth="200.0" text="Year Manufactured" />
                                       </columns>
                                     </TableView>
                                  </children>

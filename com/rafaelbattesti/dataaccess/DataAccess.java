@@ -159,7 +159,7 @@ public class DataAccess {
 				insertPrep.setNull(4, Types.NULL);
 			}
 			if (!record.getMemory().isEmpty()) {
-				insertPrep.setInt(5, Integer.parseInt(record.getHdd()));
+				insertPrep.setInt(5, Integer.parseInt(record.getMemory()));
 			} else {
 				insertPrep.setNull(5, Types.NULL);
 			}
@@ -218,13 +218,13 @@ public class DataAccess {
 	 * @param student_id
 	 * @return record
 	 */
-	public Record retrieveById (String student_id) {
+	public ArrayList<Record> retrieveById (String student_id) {
 		// Resets the log attribute
 		log = null;
 		// ResultSet holds the results of the query
 		ResultSet result = null;
-		// Record is going to hold the result of the query (unique - search by PK)
-		Record record = null;
+		// ArrayList To hold the returning record
+		ArrayList<Record> recordList = new ArrayList<>();
 		try {
 			// Substitutes placeholder in the prepared statement
 			retrieveIdPrep.setString(1, student_id);
@@ -232,7 +232,7 @@ public class DataAccess {
 			result = retrieveIdPrep.executeQuery();
 			// Creates a new record to return to the upper layer
 			while (result.next()) {
-				record = new Record (
+				Record record = new Record (
 						result.getString(ID),
 						result.getString(NAME),
 						result.getString(MODEL)
@@ -240,6 +240,8 @@ public class DataAccess {
 				record.setHdd(Integer.toString(result.getInt(HDD)));
 				record.setMemory(Integer.toString(result.getInt(MEMORY)));
 				record.setYear(Integer.toString(result.getInt(YEAR)));
+				
+				recordList.add(record);
 			}
 		} catch (SQLException e) {
 			log = logErr(e, ERR_RETR_ID);
@@ -254,7 +256,7 @@ public class DataAccess {
 			}
 		}
 		// Returns the record
-		return record;
+		return recordList;
 	}
 	
 	public ArrayList<Record> retrieveByName (String first_name) {
@@ -266,15 +268,13 @@ public class DataAccess {
 		ResultSet result = null;
 		
 		// ArrayList holds the list of records
-		ArrayList<Record> recordList = null;
+		ArrayList<Record> recordList = new ArrayList<>();
 		
 		try {
 			// Substitutes placeholder in the prepared statement
 			retrieveNamePrep.setString(1, first_name);
 			// Executes the prepared statement
 			result = retrieveNamePrep.executeQuery();
-			// Initializes the new Array if no error
-			recordList = new ArrayList<>();
 			// Creates a new record to return to the upper layer
 			while (result.next()) {
 				Record record = new Record (

@@ -8,3 +8,9 @@
 	-fx-font-weight: bold;
 	-fx-font-size: 1.1em
 }
+
+.table-cell {
+	-fx-font-family: monospace;
+	-fx-font-weight: bold;
+	-fx-font-size: 1.1em
+}
