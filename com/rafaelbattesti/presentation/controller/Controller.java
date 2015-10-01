@@ -2,6 +2,7 @@ package com.rafaelbattesti.presentation.controller;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 import com.rafaelbattesti.business.Record;
@@ -49,6 +50,10 @@ public class Controller implements Initializable {
 	@FXML private TextArea _addRecordStatusFld;
 	@FXML private TextArea  _delRecordStatusFld;
 	
+	// Label (Error message)
+	@FXML private Label _errorLbl;
+	@FXML private Label _tableTitle;
+	
 	// Table to display results
 	@FXML private TableView<Record> _tableView;
 	@FXML private TableColumn<Record, String> _modelCol;
@@ -62,8 +67,15 @@ public class Controller implements Initializable {
 	private String _statusMessageDel = "";
 	
 	// Constants
-	private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-
+	private static final String DATE_FORMAT   = "yyyy/MM/dd HH:mm:ss";
+	private static final String ID_REGEX      = "^[0-9]{9}$";
+	private static final String NAME_REGEX    = "^[A-Za-z]{1,20}$";
+	private static final String MODEL_REGEX   = "^[A-Za-z]{1,20}$";
+	private static final String HDD_REGEX     = "^[0-9]{0,9}$"; //INT limit in MySQL is 10 digits long. 9 guarantees integrity.
+	private static final String MEMORY_REGEX  = "^[0-9]{0,3}";
+	private static final String YEAR_REGEX    = "^(20[0-1][0-5]){0,1}$";
+	private static final String INVALID_INPUT = "Invalid input, please try again.";
+	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		
@@ -94,52 +106,55 @@ public class Controller implements Initializable {
 		// Add record
 		_addRecordBtn.setOnAction(event -> {
 			
-			Record record = new Record(
-					_addStudentIdFld.getText(), 
-					_addNameFld.getText(),
-					_addLaptopModelFld.getText());
+			String id     = _addStudentIdFld.getText();
+			String name   = _addNameFld.getText();
+			String model  = _addLaptopModelFld.getText();
+			String hdd    = _addHddFld.getText();
+			String memory = _addMemoryFld.getText();
+			String year   = _addYearFld.getText();
 			
-			record.setHdd(_addHddFld.getText());
-			record.setMemory(_addMemoryFld.getText());
-			record.setYear(_addYearFld.getText());
+			HashMap<String, String> form = new HashMap<>();
+			form.put(ID_REGEX, id);
+			form.put(NAME_REGEX, name);
+			form.put(MODEL_REGEX, model);
+			form.put(HDD_REGEX, hdd);
+			form.put(MEMORY_REGEX, memory);
+			form.put(YEAR_REGEX, year);
 			
-			_db.insertRecord(record);
-			
-			_statusMessageAdd = statusMessageBuilder(_statusMessageAdd);
-			printMessage(_statusMessageAdd, _addRecordStatusFld);
-			resetAddFields();
+			if (validateInput(form)) {
+				Record record = new Record(id, name, model, hdd, memory, year);
+				_db.insertRecord(record);
+				_statusMessageAdd = statusMessageBuilder(_statusMessageAdd, _db.getMessage());
+				printMessage(_statusMessageAdd, _addRecordStatusFld);
+				resetAddFields();
+			} else {
+				_errorLbl.setText(INVALID_INPUT);
+			}
 		});
 		
 		// Delete record
 		_delRecordBtn.setOnAction(event -> {
-			
 			_db.deleteRecord(_delStudentIdFld.getText(), _delNameFld.getText());
-			
-			_statusMessageDel = statusMessageBuilder(_statusMessageDel);
+			_statusMessageDel = statusMessageBuilder(_statusMessageDel, _db.getMessage());
 			printMessage(_statusMessageDel, _delRecordStatusFld);
 			resetDelFields();
 		});
 		
 		// Select records by name
 		_searchNameBtn.setOnAction(event -> {
-			
 			ArrayList<Record> recordList = _db.retrieveByName(_searchNameFld.getText());
 			_tableView.getItems().setAll(recordList);
+			_tableTitle.setText(_searchNameFld.getText());
 			_searchNameFld.clear();
-			
-			
 		});
 		
 		// Select record by ID
 		_searchIdBtn.setOnAction(event -> {
-			
 			ArrayList<Record> recordList = _db.retrieveById(_searchStudentIdFld.getText());
 			_tableView.getItems().setAll(recordList);
+			_tableTitle.setText(_searchStudentIdFld.getText());
 			_searchStudentIdFld.clear();
-			
 		});
-		
-		
 	}
 	
 	/**
@@ -152,6 +167,7 @@ public class Controller implements Initializable {
 		_addHddFld.clear();
 		_addMemoryFld.clear();
 		_addYearFld.clear();
+		_errorLbl.setText("");
 	}
 	
 	/**
@@ -179,10 +195,10 @@ public class Controller implements Initializable {
 	 * @param statusLabel label where the message is printed
 	 * @return 
 	 */
-	private String statusMessageBuilder (String statusMessage) {
+	private String statusMessageBuilder (String messageLog, String commingMessage) {
 		DateFormat df = new SimpleDateFormat(DATE_FORMAT);
 		String date = df.format(new Date());
-		return statusMessage += "[" + date + "]\n>> " + _db.getMessage() + "\n";
+		return messageLog += "[" + date + "]\n>> " + commingMessage + "\n";
 	}
 	
 	/**
@@ -190,13 +206,14 @@ public class Controller implements Initializable {
 	 * @param regex
 	 * @param field
 	 * @param message
-	 * @return
+	 * @return true if all fields are valid
 	 */
-	public String validateInput(String regex, TextField field, String message) {
-		//TODO: field validation.
-		if (!field.getText().matches(regex)) {
-			_addRecordStatusFld.setText("Not a valid input.");
+	public boolean validateInput(HashMap<String, String> form) {
+		for (String key : form.keySet()) {
+			if (!form.get(key).matches(key)) {
+				return false;
+			}
 		}
-		return null;
+		return true;
 	}
 }
