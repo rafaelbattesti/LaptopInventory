@@ -1,11 +1,5 @@
 /**
- * This package contains all the data access for the application.
- * Database connection
- * Database credentials
- * 
- */
-/**
+ * This package contains the files responsible for managing the access to the database.
  * @author rafaelbattesti
- *
  */
 package com.rafaelbattesti.dataaccess;
