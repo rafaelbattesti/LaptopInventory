@@ -31,9 +31,11 @@ public class MainApp extends Application {
 	private static final String CSS_PATH = "../view/style.css";
 	
 	/**
-	 * Primary stage.
+	 * Static primary stage for reference in the controller to close the connection.
+	 * Window close is a stage event and the database object is instantiated in the controller.
+	 * Would there be a better option?
 	 */
-	private Stage _primaryStage;
+	public static Stage _primaryStage;
 	
 	
 	/**

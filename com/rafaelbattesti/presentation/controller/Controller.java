@@ -131,6 +131,16 @@ public class Controller implements Initializable {
 	@FXML private TableView<Record> _tableView;
 	
 	/**
+	 * Search record: Column to display the student ID.
+	 */
+	@FXML private TableColumn<Record, String> _idCol;
+	
+	/**
+	 * Search record: Column to display the student name..
+	 */
+	@FXML private TableColumn<Record, String> _nameCol;
+	
+	/**
 	 * Search record: Column to display the laptop model results.
 	 */
 	@FXML private TableColumn<Record, String> _modelCol;
@@ -221,6 +231,8 @@ public class Controller implements Initializable {
 		_delRecordStatusFld.setEditable(false);
 		
 		// Setup table columns to display data retrieved from database
+		_idCol.setCellValueFactory(new PropertyValueFactory<>("studentId"));
+		_nameCol.setCellValueFactory(new PropertyValueFactory<>("firstName"));
 		_modelCol.setCellValueFactory(new PropertyValueFactory<>("model"));
 		_hddCol.setCellValueFactory(new PropertyValueFactory<>("hdd"));
 		_memoryCol.setCellValueFactory(new PropertyValueFactory<>("memory"));
@@ -234,6 +246,7 @@ public class Controller implements Initializable {
 		form.put(HDD_REGEX, _addHddFld);
 		form.put(MEMORY_REGEX, _addMemoryFld);
 		form.put(YEAR_REGEX, _addYearFld);
+		
 		
 		// Add record
 		_addRecordBtn.setOnAction(event -> {
@@ -264,6 +277,11 @@ public class Controller implements Initializable {
 		// Select record by ID
 		_searchIdBtn.setOnAction(event -> {
 			searchRecords(_searchStudentIdFld);
+		});
+		
+		// Disconnects the database.
+		MainApp._primaryStage.setOnCloseRequest(event -> {
+			_db.disconnect();
 		});
 	}
 	
