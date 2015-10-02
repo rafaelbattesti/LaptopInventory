@@ -19,7 +19,9 @@ import java.util.Date;
 public class DataAccess {
 	
 	/**
-	 * URL to connect to database.
+	 * URL to connect to database. This can be change with the host domain name or IP address.
+	 * I will demonstrate this in class for the extra points, as mobile.sheridanc.on.ca does not accept
+	 * remote connections, only connections from the localhost.
 	 */
 	private static final String JDBC_URL          = "jdbc:mysql://localhost/Laptopdb";
 	
@@ -139,6 +141,11 @@ public class DataAccess {
 	private static final String DATE_FORMAT       = "yyyy/MM/dd HH:mm:ss";
 	
 	/**
+	 * Date format for year (current year)
+	 */
+	private static final String DATE_FORMAT_YEAR  = "yyyy";
+	
+	/**
 	 * User duplicate error code.
 	 */
 	private static final int    CODE_DUPE_RECORD  = 1062;
@@ -252,7 +259,7 @@ public class DataAccess {
 			_insertPrep.setString(2, record.getFirstName());
 			_insertPrep.setString(3, record.getModel());
 			
-			// Assigns proper values to Database (NULL)
+			// Assigns proper values to Database (NULL or current year)
 			if (!record.getHdd().isEmpty()) {
 				_insertPrep.setInt(4, Integer.parseInt(record.getHdd()));
 			} else {
@@ -266,7 +273,9 @@ public class DataAccess {
 			if (!record.getYear().isEmpty()) {
 				_insertPrep.setInt(6, Integer.parseInt(record.getYear()));
 			} else {
-				_insertPrep.setInt(6, 2015);
+				DateFormat df = new SimpleDateFormat(DATE_FORMAT_YEAR);
+				String date = df.format(new Date());
+				_insertPrep.setInt(6, Integer.parseInt(date));
 			}
 			
 			affectedRows = _insertPrep.executeUpdate();
