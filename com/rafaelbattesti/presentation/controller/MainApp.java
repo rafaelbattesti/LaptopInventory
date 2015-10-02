@@ -8,16 +8,36 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Main Application.
+ * @author rafaelbattesti - 991382266
+ *
+ */
 public class MainApp extends Application {
 
-	// Constants
+	/**
+	 * Title of the application (window).
+	 */
 	private static final String TITLE = "Laptop Inventory Information System";
-	private static final String FXML_PATH = "../view/AppView.fxml";
-	private static final String CSS_PATH = "../view/style.css";
-	private Stage _primaryStage;
 	
 	/**
-	 * Start method.
+	 * Path to the FXML file.
+	 */
+	private static final String FXML_PATH = "../view/AppView.fxml";
+	
+	/**
+	 * Path to the CSS file.
+	 */
+	private static final String CSS_PATH = "../view/style.css";
+	
+	/**
+	 * Primary stage.
+	 */
+	private Stage _primaryStage;
+	
+	
+	/**
+	 * Start method initializes the stage, loads FXML and CSS files into the MainApp and shows the stage.
 	 */
 	@Override
 	public void start(Stage stage) throws IOException {
@@ -44,7 +64,7 @@ public class MainApp extends Application {
 	}
 
 	/**
-	 * Main method. Uses launch(args) to start Javafx application.
+	 * Main method. Launches JavaFx application.
 	 * @param args
 	 */
 	public static void main(String[] args) {
