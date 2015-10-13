@@ -290,7 +290,12 @@ public class Controller implements Initializable {
 	 * @param field to use in the search
 	 */
 	private void searchRecords(TextField field) {
-		ArrayList<Record> recordList = _db.retrieveByName(field.getText());
+		ArrayList<Record> recordList = new ArrayList<>();
+		if (field == _searchStudentIdFld) {
+			recordList = _db.retrieveById(field.getText());
+		} else {
+			recordList = _db.retrieveByName(field.getText());
+		}
 		_tableView.getItems().setAll(recordList);
 		_tableTitle.setText(field.getText());
 		field.clear();
